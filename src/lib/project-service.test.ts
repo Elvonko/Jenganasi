@@ -1241,13 +1241,15 @@ test("company-scoped project operations enforce tenant and role boundaries", asy
     null,
   );
   assert.deepEqual(
-    (
-      await getProjectMediaForUser(
-        clientAId,
-        portalProject.id,
-        sharedUpdate.id,
-      )
-    )?.data,
+    Uint8Array.from(
+      (
+        await getProjectMediaForUser(
+          clientAId,
+          portalProject.id,
+          sharedUpdate.id,
+        )
+      )?.data ?? new Uint8Array(),
+    ),
     sampleImage,
   );
   assert.deepEqual(await listClientProjects(clientAId), [

@@ -152,19 +152,6 @@ export async function createProject(
       throw new Error("Company workspace not found.");
     }
 
-    const projectLimit = getPricingPlan(company.planCode).projectLimit;
-    if (projectLimit !== null) {
-      const [usage] = await transaction
-        .select({ total: count() })
-        .from(projects)
-        .where(eq(projects.companyId, actor.companyId));
-      if ((usage?.total ?? 0) >= projectLimit) {
-        throw new ProjectLimitError(
-          `Your ${getPricingPlan(company.planCode).name} plan allows ${projectLimit} project${projectLimit === 1 ? "" : "s"}. Visit /pricing to review plans.`,
-        );
-      }
-    }
-
     let templateData: z.infer<typeof projectTemplateDataSchema> | undefined;
     if (input.templateId) {
       const [template] = await transaction
@@ -202,6 +189,24 @@ export async function createProject(
         .limit(1);
       if (!customer) {
         throw new Error("Choose an active customer from this company.");
+      }
+    }
+
+    const projectLimit = getPricingPlan(company.planCode).projectLimit;
+    if (projectLimit !== null) {
+      const [usage] = await transaction
+        .select({ total: count() })
+        .from(projects)
+        .where(
+          and(
+            eq(projects.companyId, actor.companyId),
+            ne(projects.status, "archived"),
+          ),
+        );
+      if ((usage?.total ?? 0) >= projectLimit) {
+        throw new ProjectLimitError(
+          `Your ${getPricingPlan(company.planCode).name} plan allows ${projectLimit} project${projectLimit === 1 ? "" : "s"}. Visit /pricing to review plans.`,
+        );
       }
     }
 
