@@ -39,7 +39,11 @@ Requirements: Node.js 20.9 or newer, npm and a PostgreSQL server.
    npm run dev
    ```
 
-5. Open `http://localhost:3000`, register an account, create a company workspace and add a project.
+5. Open `http://localhost:3000`, register an account, verify your email, create a company workspace and add a project.
+
+Email verification is required. In development, verification and password-reset emails are printed to the dev-server console (no SMTP needed). In production, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`; the app fails fast when a mail must be sent without SMTP in production. Password recovery is available at `/forgot-password` and `/reset-password`.
+
+Set `BETTER_AUTH_TRUSTED_ORIGINS` to a comma-separated list of any additional origins allowed to call the auth API. Authentication rate limits are stored in the `rate_limit` table so they are shared across instances.
 
 Migrations are **not** applied by the application at runtime. The app only verifies that every migration in `src/db/migrations/` is present and unchanged in the `_migrations` ledger, and fails fast with a clear error otherwise. Run `npm run db:migrate` as a separate deploy step before starting the app. Never edit a migration that has already been applied — add a new one instead. Use a dedicated database per environment; production should use a managed PostgreSQL service with backups and TLS.
 

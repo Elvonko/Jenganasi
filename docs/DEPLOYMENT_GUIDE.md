@@ -13,7 +13,7 @@ The application connects to PostgreSQL through `DATABASE_URL` using the `node-po
 
 ## Required configuration
 
-Use the deployment platform's secret manager for database credentials, authentication/session secret, email, object storage, monitoring and payment credentials. Never commit production values. Keep `.env.local` ignored and provide only a placeholder `.env.example`.
+Use the deployment platform's secret manager for database credentials, authentication/session secret, SMTP credentials, object storage, monitoring and payment credentials. Never commit production values. Keep `.env.local` ignored and provide only a placeholder `.env.example`. Set `BETTER_AUTH_URL` and `BETTER_AUTH_TRUSTED_ORIGINS` to the real deployment origins; the default `http://localhost:3000` is not valid in production.
 
 Configure separate development, preview and production databases and provider credentials. Use TLS for application and database connections. Do not use production customer data in previews.
 
@@ -30,7 +30,7 @@ Configure separate development, preview and production databases and provider cr
 
 - Managed PostgreSQL with encryption, network restrictions, automated backups and tested restore procedures.
 - Private object storage, lifecycle policy, virus/content validation and short-lived signed downloads.
-- HTTPS, secure cookies, rate limits, email verification, account recovery and operator MFA.
+- HTTPS (HSTS is emitted in production), secure cookies, database-backed rate limits, email verification, password recovery, trusted origins and security headers are implemented. Operator MFA and per-user abuse limits remain open.
 - Structured logs with secrets/PII redaction, request IDs, error monitoring and alerting.
 - Durable background queue/outbox, retry limits, dead-letter inspection and idempotent provider callbacks.
 - Documented incident response, access review, support procedure, privacy and retention policy.

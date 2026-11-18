@@ -23,6 +23,7 @@ import { getCustomer, listCustomers } from "@/lib/customer-service";
 import { hasPermission } from "@/lib/permissions";
 import { getProject } from "@/lib/project-service";
 import {
+  listPendingClientInvitations,
   listProjectClientAccess,
   listProjectMedia,
 } from "@/lib/project-media-service";
@@ -68,7 +69,8 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   }
 
   const canUpdate = hasPermission(context.actor.role, "projects:update");
-  const [tasks, milestones, phases, assignees, media, clientAccess] = await Promise.all([
+  const [tasks, milestones, phases, assignees, media, clientAccess, invitations] =
+    await Promise.all([
     listProjectTasks(context.actor, project.id),
     listProjectMilestones(context.actor, project.id),
     listProjectPhases(context.actor, project.id),
@@ -78,6 +80,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     listProjectMedia(context.actor, project.id),
     canUpdate
       ? listProjectClientAccess(context.actor, project.id)
+      : Promise.resolve([]),
+    canUpdate
+      ? listPendingClientInvitations(context.actor, project.id)
       : Promise.resolve([]),
   ]);
   const canArchive = hasPermission(context.actor.role, "projects:archive");
@@ -128,6 +133,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       {canUpdate && (
         <ClientProjectAccessPanel
           clients={clientAccess}
+          invitations={invitations}
           customerEmail={customer?.email ?? null}
           projectId={project.id}
         />

@@ -8,6 +8,7 @@ import {
   inspectProjectMediaFile,
   inviteClientToProject,
   removeClientProjectAccess,
+  revokeClientInvitation,
 } from "@/lib/project-media-service";
 
 export type ProjectMediaFormState = {
@@ -101,6 +102,26 @@ export async function removeClientProjectAccessAction(
   if (!removed) throw new Error("Project access record is no longer available.");
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/client-portal");
+}
+
+export async function revokeClientInvitationAction(
+  formData: FormData,
+): Promise<void> {
+  const projectId = formData.get("projectId");
+  const invitationId = formData.get("invitationId");
+  if (
+    typeof projectId !== "string" ||
+    !/^[0-9a-f-]{36}$/i.test(projectId) ||
+    typeof invitationId !== "string" ||
+    !/^[0-9a-f-]{36}$/i.test(invitationId)
+  ) {
+    throw new Error("Invitation not found.");
+  }
+
+  const { actor } = await getCompanyContext("projects:update");
+  const revoked = await revokeClientInvitation(actor, invitationId);
+  if (!revoked) throw new Error("Invitation is no longer active.");
+  revalidatePath(`/projects/${projectId}`);
 }
 
 export async function acceptClientProjectInvitation(

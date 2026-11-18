@@ -169,6 +169,12 @@ export function AuthForm({ mode, returnTo }: AuthFormProps) {
         </button>
       </form>
 
+      {!signingUp && (
+        <p className="auth-switch">
+          <Link href="/forgot-password">Forgot your password?</Link>
+        </p>
+      )}
+
       <p className="auth-switch">
         {signingUp ? "Already have an account?" : "New to JengaNasi?"}{" "}
         <Link

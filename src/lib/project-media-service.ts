@@ -559,6 +559,76 @@ export async function inviteClientToProject(
   return { email, token };
 }
 
+export type ClientInvitationItem = {
+  id: string;
+  email: string;
+  expiresAt: Date;
+};
+
+export async function listPendingClientInvitations(
+  actor: ProjectActor,
+  projectId: string,
+): Promise<ClientInvitationItem[]> {
+  if (!hasPermission(actor.role, "projects:update")) {
+    throw new Error(`Role "${actor.role}" cannot manage invitations.`);
+  }
+  await ensureDatabase();
+  return db
+    .select({
+      id: projectClientInvitations.id,
+      email: projectClientInvitations.email,
+      expiresAt: projectClientInvitations.expiresAt,
+    })
+    .from(projectClientInvitations)
+    .where(
+      and(
+        eq(projectClientInvitations.companyId, actor.companyId),
+        eq(projectClientInvitations.projectId, projectId),
+        isNull(projectClientInvitations.acceptedAt),
+        isNull(projectClientInvitations.revokedAt),
+        gt(projectClientInvitations.expiresAt, new Date()),
+      ),
+    )
+    .orderBy(desc(projectClientInvitations.expiresAt));
+}
+
+export async function revokeClientInvitation(
+  actor: ProjectActor,
+  invitationId: string,
+): Promise<boolean> {
+  if (!hasPermission(actor.role, "projects:update")) {
+    throw new Error(`Role "${actor.role}" cannot manage invitations.`);
+  }
+  await ensureDatabase();
+  const revoked = await db
+    .update(projectClientInvitations)
+    .set({ revokedAt: new Date() })
+    .where(
+      and(
+        eq(projectClientInvitations.id, invitationId),
+        eq(projectClientInvitations.companyId, actor.companyId),
+        isNull(projectClientInvitations.revokedAt),
+      ),
+    )
+    .returning({
+      projectId: projectClientInvitations.projectId,
+      email: projectClientInvitations.email,
+    });
+  const invitation = revoked[0];
+  if (!invitation) return false;
+
+  await db.insert(auditEvents).values({
+    id: randomUUID(),
+    companyId: actor.companyId,
+    actorUserId: actor.userId,
+    action: "project.client_invitation_revoked",
+    resourceType: "project",
+    resourceId: invitation.projectId,
+    metadata: { email: invitation.email },
+  });
+  return true;
+}
+
 export async function acceptClientInvitation(
   user: { id: string; email: string },
   token: string,

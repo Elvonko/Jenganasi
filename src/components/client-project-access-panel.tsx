@@ -4,18 +4,24 @@ import { useActionState } from "react";
 import {
   createClientProjectInvitation,
   removeClientProjectAccessAction,
+  revokeClientInvitationAction,
 } from "@/app/projects/media-actions";
-import type { ProjectClientAccessItem } from "@/lib/project-media-service";
+import type {
+  ClientInvitationItem,
+  ProjectClientAccessItem,
+} from "@/lib/project-media-service";
 import { useState } from "react";
 
 export function ClientProjectAccessPanel({
   projectId,
   customerEmail,
   clients,
+  invitations,
 }: {
   projectId: string;
   customerEmail: string | null;
   clients: ProjectClientAccessItem[];
+  invitations: ClientInvitationItem[];
 }) {
   const [state, formAction, pending] = useActionState(
     createClientProjectInvitation,
@@ -78,6 +84,36 @@ export function ClientProjectAccessPanel({
             Copy link
           </button>
           <span className="field-hint" aria-live="polite">{copyMessage}</span>
+        </div>
+      )}
+      {invitations.length > 0 && (
+        <div className="client-access-list">
+          <strong>
+            Pending invitations <span className="work-count">{invitations.length}</span>
+          </strong>
+          <ul>
+            {invitations.map((invitation) => (
+              <li key={invitation.id}>
+                <span>
+                  <strong>{invitation.email}</strong>
+                  <small>
+                    Expires {new Date(invitation.expiresAt).toLocaleDateString()}
+                  </small>
+                </span>
+                <form action={revokeClientInvitationAction}>
+                  <input type="hidden" name="projectId" value={projectId} />
+                  <input type="hidden" name="invitationId" value={invitation.id} />
+                  <button
+                    className="button button-tertiary"
+                    type="submit"
+                    aria-label={`Revoke invitation for ${invitation.email}`}
+                  >
+                    Revoke
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       <div className="client-access-list">

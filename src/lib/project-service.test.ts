@@ -57,6 +57,8 @@ let deleteCompanyTemplate: typeof import("@/lib/company-template-service").delet
 let listCompanyTemplates: typeof import("@/lib/company-template-service").listCompanyTemplates;
 let companyTemplateInputSchema: typeof import("@/lib/company-template-service").companyTemplateInputSchema;
 let inviteClientToProject: typeof import("@/lib/project-media-service").inviteClientToProject;
+let listPendingClientInvitations: typeof import("@/lib/project-media-service").listPendingClientInvitations;
+let revokeClientInvitation: typeof import("@/lib/project-media-service").revokeClientInvitation;
 let acceptClientInvitation: typeof import("@/lib/project-media-service").acceptClientInvitation;
 let listClientProjects: typeof import("@/lib/project-media-service").listClientProjects;
 let getClientProject: typeof import("@/lib/project-media-service").getClientProject;
@@ -142,6 +144,8 @@ before(async () => {
   listCompanyTemplates = companyTemplateService.listCompanyTemplates;
   companyTemplateInputSchema = companyTemplateService.companyTemplateInputSchema;
   inviteClientToProject = projectMediaService.inviteClientToProject;
+  listPendingClientInvitations = projectMediaService.listPendingClientInvitations;
+  revokeClientInvitation = projectMediaService.revokeClientInvitation;
   acceptClientInvitation = projectMediaService.acceptClientInvitation;
   listClientProjects = projectMediaService.listClientProjects;
   getClientProject = projectMediaService.getClientProject;
@@ -150,6 +154,8 @@ before(async () => {
   listClientProjectMedia = projectMediaService.listClientProjectMedia;
   getProjectMediaForUser = projectMediaService.getProjectMediaForUser;
   await applyMigrations(client);
+  const ownerEmail = `owner-${randomUUID()}@example.test`;
+  const ownerPassword = `Construction-${randomUUID()}-9`;
   const signupResponse = await authModule.auth.handler(
     new Request("http://localhost:3000/api/auth/sign-up/email", {
       method: "POST",
@@ -159,8 +165,8 @@ before(async () => {
       },
       body: JSON.stringify({
         name: "First Owner",
-        email: `owner-${randomUUID()}@example.test`,
-        password: `Construction-${randomUUID()}-9`,
+        email: ownerEmail,
+        password: ownerPassword,
       }),
     }),
   );
@@ -169,7 +175,25 @@ before(async () => {
     user: { id: string };
   };
   assert.ok(account.user.id);
-  const cookie = signupResponse.headers.get("set-cookie");
+
+  // Email verification is required in production; mark this fixture verified.
+  await db
+    .update(users)
+    .set({ emailVerified: true })
+    .where(eq(users.id, account.user.id));
+
+  const signInResponse = await authModule.auth.handler(
+    new Request("http://localhost:3000/api/auth/sign-in/email", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: "http://localhost:3000",
+      },
+      body: JSON.stringify({ email: ownerEmail, password: ownerPassword }),
+    }),
+  );
+  assert.equal(signInResponse.status, 200);
+  const cookie = signInResponse.headers.get("set-cookie");
   assert.ok(cookie);
   const sessionResponse = await authModule.auth.handler(
     new Request("http://localhost:3000/api/auth/get-session", {
@@ -1189,6 +1213,12 @@ test("company-scoped project operations enforce tenant and role boundaries", asy
   });
   assert.ok(portalProject);
   const invitation = await inviteClientToProject(ownerA, portalProject.id);
+  const pendingBeforeAcceptance = await listPendingClientInvitations(
+    ownerA,
+    portalProject.id,
+  );
+  assert.equal(pendingBeforeAcceptance.length, 1);
+  assert.equal(pendingBeforeAcceptance[0]?.email, invitation.email);
   await assert.rejects(
     acceptClientInvitation(
       { id: clientAId, email: "someone-else@example.test" },
@@ -1204,6 +1234,29 @@ test("company-scoped project operations enforce tenant and role boundaries", asy
     acceptClientInvitation(
       { id: clientAId, email: invitation.email },
       invitation.token,
+    ),
+    /email address this project invitation was sent to/,
+  );
+  assert.equal(
+    (await listPendingClientInvitations(ownerA, portalProject.id)).length,
+    0,
+  );
+
+  const revocable = await inviteClientToProject(ownerA, portalProject.id);
+  const pendingInvitations = await listPendingClientInvitations(
+    ownerA,
+    portalProject.id,
+  );
+  assert.equal(pendingInvitations.length, 1);
+  assert.ok(await revokeClientInvitation(ownerA, pendingInvitations[0].id));
+  assert.equal(
+    (await listPendingClientInvitations(ownerA, portalProject.id)).length,
+    0,
+  );
+  await assert.rejects(
+    acceptClientInvitation(
+      { id: clientAId, email: revocable.email },
+      revocable.token,
     ),
     /email address this project invitation was sent to/,
   );
