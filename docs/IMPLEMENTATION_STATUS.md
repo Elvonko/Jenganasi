@@ -22,6 +22,7 @@ Last updated: 2026-11-05
 | Estimates & BOQ | Complete (initial) | Tenant-scoped estimates linked to active projects, itemized quantities and unit rates, status workflow, company-scoped estimate templates that seed BOQ lines, audit events and cross-company authorization tests |
 | Reports | Complete (initial) | Tenant-scoped project progress, task/milestone completion, untaxed estimate values by status, and recent audit activity; date filtering, exports and financial actuals remain future work |
 | Company settings and templates | Complete (initial) | Owner/admin-editable company profile, regional defaults, reusable company-scoped project task/milestone and estimate BOQ templates, transactional audit history, and creation-time snapshots |
+| Deployment / CI / health | Complete (local) | Standalone Docker image, compose stack with a separate migration step, GitHub Actions CI, and liveness/readiness endpoints; no production deployment or monitoring/alerting integration yet |
 | Remaining construction modules | Not implemented | Remaining work in roadmap phases 5 onward |
 
 ## Completion policy

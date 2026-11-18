@@ -2,7 +2,12 @@
 
 ## Status
 
-Deployment is not configured. This guide describes prerequisites and safe deployment expectations; it is not evidence that a production deployment has occurred.
+A container-based local deployment and CI pipeline are configured, but no production deployment has been performed. This guide describes prerequisites and safe deployment expectations; it is not evidence that a production deployment has occurred.
+
+- `Dockerfile` builds a standalone runtime image; the `migrator` target runs `npm run db:migrate` as a separate one-shot step.
+- `docker-compose.yml` brings up PostgreSQL, runs migrations, then starts the app. Set `BETTER_AUTH_SECRET` in a gitignored `.env` first. Use `docker compose up --build`.
+- `.github/workflows/ci.yml` runs lint, type-check, migration application, tests and build against a PostgreSQL service on every push and pull request.
+- `/api/health` is a liveness endpoint; `/api/ready` checks database connectivity and migration state and returns 503 when not ready. Point platform health checks and the container healthcheck at them.
 
 The application connects to PostgreSQL through `DATABASE_URL` using the `node-postgres` driver. Provision a managed PostgreSQL instance with TLS and backups before launch; the connection string is read at server startup and is required. Migrations are applied by the separate `npm run db:migrate` command, which records each file and its checksum in the `_migrations` ledger under an advisory lock. Run it as a deploy step before starting app instances; the app itself only verifies migration state at startup. Project progress uploads are currently stored in the database, with a 10 MB limit for images/documents and 20 MB for videos. Before production, move file bytes to private object storage and add email delivery and download authorization.
 
