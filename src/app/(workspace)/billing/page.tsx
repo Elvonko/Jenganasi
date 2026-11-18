@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { updateAutoRenew } from "@/app/billing/actions";
+import { updateAutoRenew } from "@/lib/billing-actions";
 import { MpesaCheckoutForm } from "@/components/mpesa-checkout-form";
 import { getCompanyContext } from "@/lib/company-context";
 import { getPricingPlan, pricingPlans } from "@/lib/pricing";

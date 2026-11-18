@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   startMpesaCheckout,
   type CheckoutFormState,
-} from "@/app/billing/actions";
+} from "@/lib/billing-actions";
 
 export function MpesaCheckoutForm({
   planId,
