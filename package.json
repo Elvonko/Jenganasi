@@ -12,7 +12,8 @@
     "db:backup": "node --env-file-if-exists=.env.local --import=tsx scripts/backup.ts",
     "db:restore": "node --env-file-if-exists=.env.local --import=tsx scripts/restore.ts",
     "db:drill": "npm run db:backup -- .backups/latest.dump && npm run db:restore -- .backups/latest.dump",
-    "test": "node --env-file-if-exists=.env.local --conditions=react-server --import=tsx --test src/db/migrate.test.ts src/lib/project-service.test.ts src/lib/procurement-service.test.ts"
+    "billing:renew": "node --env-file-if-exists=.env.local --conditions=react-server --import=tsx scripts/mpesa-renew.ts",
+    "test": "node --env-file-if-exists=.env.local --conditions=react-server --import=tsx --test src/db/migrate.test.ts src/lib/project-service.test.ts src/lib/procurement-service.test.ts src/lib/subscription-service.test.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^7.0.12",

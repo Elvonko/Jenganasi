@@ -34,7 +34,7 @@ Configure separate development, preview and production databases and provider cr
 - Structured logs with secrets/PII redaction, request IDs, error monitoring and alerting.
 - Durable background queue/outbox, retry limits, dead-letter inspection and idempotent provider callbacks.
 - Documented incident response, access review, support procedure, privacy and retention policy.
-- Payment integration remains in sandbox until provider approval, reconciliation and finance controls are signed off.
+- M-Pesa integration uses STK Push with fixed KES prices, a public callback at `/api/mpesa/callback`, Daraja status re-query verification, idempotent payment processing and a daily `npm run billing:renew` scheduler for consent-based renewals. Keep `MPESA_ENVIRONMENT=sandbox` until provider approval, callback/reconciliation tests and finance controls are signed off. Store Daraja credentials in the platform secret manager; never use real customer phone numbers in previews.
 
 ## Backup and restore
 

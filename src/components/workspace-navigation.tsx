@@ -4,6 +4,7 @@ import {
   BarChart3,
   Boxes,
   ClipboardList,
+  CreditCard,
   FolderKanban,
   LayoutDashboard,
   Settings2,
@@ -20,6 +21,7 @@ type WorkspaceNavigationProps = {
   canReadAccounts: boolean;
   canReadProcurement: boolean;
   canReadSettings: boolean;
+  canManageBilling: boolean;
 };
 
 export function WorkspaceNavigation({
@@ -29,6 +31,7 @@ export function WorkspaceNavigation({
   canReadAccounts,
   canReadProcurement,
   canReadSettings,
+  canManageBilling,
 }: WorkspaceNavigationProps) {
   const pathname = usePathname();
   const navigation = [
@@ -51,6 +54,9 @@ export function WorkspaceNavigation({
       : []),
     ...(canReadSettings
       ? [{ href: "/settings", label: "Settings", icon: Settings2 }]
+      : []),
+    ...(canManageBilling
+      ? [{ href: "/billing", label: "Billing", icon: CreditCard }]
       : []),
   ];
 

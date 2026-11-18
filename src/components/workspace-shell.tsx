@@ -43,6 +43,7 @@ export async function WorkspaceShell({
             canReadAccounts={hasPermission(context.actor.role, "accounts:read")}
             canReadProcurement={hasPermission(context.actor.role, "procurement:read")}
             canReadSettings={hasPermission(context.actor.role, "settings:read")}
+            canManageBilling={hasPermission(context.actor.role, "settings:update")}
           />
         </nav>
 

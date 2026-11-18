@@ -654,6 +654,78 @@ export const purchaseOrders = pgTable(
   ],
 );
 
+export const subscriptions = pgTable(
+  "subscription",
+  {
+    id: text("id").primaryKey(),
+    companyId: text("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    planCode: text("plan_code").$type<PricingPlanId>().notNull(),
+    status: text("status")
+      .$type<"pending" | "active" | "expired" | "cancelled">()
+      .notNull()
+      .default("pending"),
+    msisdn: text("msisdn"),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    autoRenew: boolean("auto_renew").notNull().default(false),
+    autoRenewConsentAt: timestamp("auto_renew_consent_at", { withTimezone: true }),
+    currentPeriodStart: timestamp("current_period_start", { withTimezone: true }),
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    uniqueIndex("subscription_company_unique").on(table.companyId),
+    index("subscription_renewal_idx").on(table.status, table.currentPeriodEnd),
+  ],
+);
+
+export const mpesaPayments = pgTable(
+  "mpesa_payment",
+  {
+    id: text("id").primaryKey(),
+    companyId: text("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    subscriptionId: text("subscription_id").references(() => subscriptions.id, {
+      onDelete: "set null",
+    }),
+    initiatedBy: text("initiated_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    planCode: text("plan_code").$type<PricingPlanId>().notNull(),
+    amountKes: integer("amount_kes").notNull(),
+    merchantRequestId: text("merchant_request_id"),
+    checkoutRequestId: text("checkout_request_id"),
+    status: text("status")
+      .$type<"pending" | "success" | "failed" | "cancelled" | "reversed">()
+      .notNull()
+      .default("pending"),
+    resultCode: text("result_code"),
+    resultDesc: text("result_desc"),
+    mpesaReceiptNumber: text("mpesa_receipt_number"),
+    phoneNumber: text("phone_number"),
+    initiatedAt: timestamp("initiated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    metadata: jsonb("metadata")
+      .$type<Record<string, string | number | boolean | null>>()
+      .notNull()
+      .default({}),
+  },
+  (table) => [
+    uniqueIndex("mpesa_payment_checkout_unique").on(table.checkoutRequestId),
+    index("mpesa_payment_company_initiated_idx").on(
+      table.companyId,
+      table.initiatedAt,
+    ),
+  ],
+);
+
 export type Company = typeof companies.$inferSelect;
 export type Membership = typeof memberships.$inferSelect;
 export type CompanyTemplate = typeof companyTemplates.$inferSelect;
@@ -667,3 +739,5 @@ export type Estimate = typeof estimates.$inferSelect;
 export type EstimateLineItem = typeof estimateLineItems.$inferSelect;
 export type Supplier = typeof suppliers.$inferSelect;
 export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type MpesaPayment = typeof mpesaPayments.$inferSelect;

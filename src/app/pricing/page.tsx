@@ -51,12 +51,16 @@ export default function PricingPage() {
               <p className="pricing-description">{plan.description}</p>
               <p className="pricing-price">
                 <strong>
-                  {plan.priceUsdPerYear === 0 ? "Free" : `$${plan.priceUsdPerYear}`}
+                  {plan.priceKesPerYear === 0
+                    ? "Free"
+                    : `KES ${plan.priceKesPerYear.toLocaleString()}`}
                 </strong>
-                {plan.priceUsdPerYear > 0 && <span> / year</span>}
+                {plan.priceKesPerYear > 0 && <span> / year</span>}
               </p>
               <p className="pricing-renewal">
-                {plan.priceUsdPerYear === 0 ? "No charge" : "Billed yearly · USD"}
+                {plan.priceKesPerYear === 0
+                  ? "No charge"
+                  : "Billed yearly · M-Pesa (KES)"}
               </p>
               <ul className="pricing-features">
                 {plan.features.map((feature) => (
@@ -71,9 +75,9 @@ export default function PricingPage() {
                   Start for free <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               ) : (
-                <button className="pricing-action pricing-action-disabled" disabled>
-                  Checkout coming soon
-                </button>
+                <Link className="pricing-action pricing-action-primary" href="/billing">
+                  Subscribe with M-Pesa <ArrowRight size={16} aria-hidden="true" />
+                </Link>
               )}
             </article>
           ))}
@@ -83,11 +87,11 @@ export default function PricingPage() {
           <div className="pricing-payment-heading">
             <span className="pricing-payment-icon"><CreditCard size={17} aria-hidden="true" /></span>
             <span className="pricing-payment-icon"><Smartphone size={17} aria-hidden="true" /></span>
-            <strong>Payment options planned</strong>
+            <strong>Pay with M-Pesa</strong>
           </div>
           <p>
-            Visa card and M-Pesa (Safaricom). Paid checkout is not active yet;
-            you won’t be charged from this page.
+            Annual plans are paid by M-Pesa STK push in KES. You confirm the
+            payment on your phone; your workspace upgrades as soon as it is verified.
           </p>
         </aside>
       </section>

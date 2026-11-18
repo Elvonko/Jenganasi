@@ -56,6 +56,12 @@ npm run db:restore -- .backups/<backup-file>.dump
 
 `npm run db:drill` runs both steps in one command. `db:backup` writes a custom-format `pg_dump` archive under `.backups/` (gitignored). `db:restore` restores it into a temporary database, verifies the migration ledger and table count, then drops that database — it never touches your working database. To restore over the configured database, add `--replace --confirm` after first taking a fresh backup. See [deployment guide](./docs/DEPLOYMENT_GUIDE.md) for tool-path configuration and scheduling responsibilities.
 
+## M-Pesa subscriptions
+
+Annual Pro and Business plans are paid in KES through Safaricom Daraja STK Push from `/billing`. Configure `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_PASSKEY`, `MPESA_SHORTCODE` and a publicly reachable `MPESA_CALLBACK_URL` ending in `/api/mpesa/callback`. Sandbox is the default; set `MPESA_ENVIRONMENT=production` only with live credentials.
+
+Payments are stored in `mpesa_payment`, and the company's active plan is activated only after the callback is verified against a Daraja status query and the amount matches the invoice. Auto-renew is stored as explicit consent on `subscription`; run `npm run billing:renew` from a daily scheduler to send STK pushes for subscriptions nearing expiry (configurable with `MPESA_RENEWAL_WINDOW_DAYS`). This is a consent-based renewal using STK Push rather than Safaricom's limited native recurring-payments API; the `MpesaClient` abstraction can be extended if that API becomes available.
+
 ## Validation
 
 ```powershell
