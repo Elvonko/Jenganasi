@@ -9,7 +9,7 @@ const testSchema = `test_${randomUUID().replace(/-/g, "")}`;
 
 let db: typeof import("@/db/client").db;
 let client: typeof import("@/db/client").client;
-let ensureDatabase: typeof import("@/db/client").ensureDatabase;
+let applyMigrations: typeof import("@/db/migrate").applyMigrations;
 let users: typeof import("@/db/schema").users;
 let companies: typeof import("@/db/schema").companies;
 let memberships: typeof import("@/db/schema").memberships;
@@ -80,6 +80,7 @@ before(async () => {
   process.env.BETTER_AUTH_URL = "http://localhost:3000";
 
   const database = await import("@/db/client");
+  const migration = await import("@/db/migrate");
   const schema = await import("@/db/schema");
   const service = await import("@/lib/project-service");
   const workService = await import("@/lib/project-work-service");
@@ -93,7 +94,7 @@ before(async () => {
 
   db = database.db;
   client = database.client;
-  ensureDatabase = database.ensureDatabase;
+  applyMigrations = migration.applyMigrations;
   users = schema.users;
   companies = schema.companies;
   memberships = schema.memberships;
@@ -148,7 +149,7 @@ before(async () => {
   listProjectMedia = projectMediaService.listProjectMedia;
   listClientProjectMedia = projectMediaService.listClientProjectMedia;
   getProjectMediaForUser = projectMediaService.getProjectMediaForUser;
-  await ensureDatabase();
+  await applyMigrations(client);
   const signupResponse = await authModule.auth.handler(
     new Request("http://localhost:3000/api/auth/sign-up/email", {
       method: "POST",

@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "21mb",
     },
   },
+  outputFileTracingIncludes: {
+    "/*": ["./src/db/migrations/**/*.sql"],
+  },
   turbopack: {
     rules: {
       "*.css": {

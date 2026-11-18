@@ -29,6 +29,7 @@ before(async () => {
   }
   process.env.DATABASE_SCHEMA = testSchema;
   const database = await import("@/db/client");
+  const migration = await import("@/db/migrate");
   const schema = await import("@/db/schema");
   const service = await import("@/lib/procurement-service");
   db = database.db;
@@ -41,7 +42,7 @@ before(async () => {
   listPurchaseOrders = service.listPurchaseOrders;
   updatePurchaseOrderStatus = service.updatePurchaseOrderStatus;
   purchaseOrderInputSchema = service.purchaseOrderInputSchema;
-  await database.ensureDatabase();
+  await migration.applyMigrations(client);
 });
 
 after(async () => {

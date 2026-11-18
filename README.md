@@ -27,15 +27,21 @@ Requirements: Node.js 20.9 or newer, npm and a PostgreSQL server.
    Add-Content .env.local "BETTER_AUTH_SECRET=$([Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)))"
    ```
 
-3. Start the application:
+3. Apply the migrations (this records each applied file and checksum in the `_migrations` ledger):
+
+   ```powershell
+   npm run db:migrate
+   ```
+
+4. Start the application:
 
    ```powershell
    npm run dev
    ```
 
-4. Open `http://localhost:3000`, register an account, create a company workspace and add a project.
+5. Open `http://localhost:3000`, register an account, create a company workspace and add a project.
 
-The schema in `src/db/migrations/` is applied automatically on the first server request. Use a dedicated database per environment; production should use a managed PostgreSQL service with backups and TLS.
+Migrations are **not** applied by the application at runtime. The app only verifies that every migration in `src/db/migrations/` is present and unchanged in the `_migrations` ledger, and fails fast with a clear error otherwise. Run `npm run db:migrate` as a separate deploy step before starting the app. Never edit a migration that has already been applied — add a new one instead. Use a dedicated database per environment; production should use a managed PostgreSQL service with backups and TLS.
 
 ## Validation
 

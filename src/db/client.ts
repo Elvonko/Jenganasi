@@ -1,9 +1,8 @@
 import "server-only";
 
-import { readFile, readdir } from "node:fs/promises";
-import { join } from "node:path";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { scopedConnectionString, verifyMigrations } from "./migrate";
 import * as schema from "./schema";
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -31,23 +30,11 @@ const globalForDatabase = globalThis as typeof globalThis & {
 export const client =
   globalForDatabase.jengaPgPool ??
   new Pool({
-    connectionString: databaseUrl,
+    connectionString: scopedConnectionString(databaseUrl, process.env.DATABASE_SCHEMA),
     max: Number(process.env.DATABASE_POOL_MAX ?? 10),
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 10_000,
   });
-
-const databaseSchema = process.env.DATABASE_SCHEMA;
-if (databaseSchema) {
-  if (!/^[A-Za-z0-9_]+$/.test(databaseSchema)) {
-    throw new Error("DATABASE_SCHEMA must contain only letters, digits and underscores.");
-  }
-  client.on("connect", (connection) => {
-    void connection.query(`SET search_path TO "${databaseSchema}"`).catch((error) => {
-      connection.release(error as Error);
-    });
-  });
-}
 
 if (process.env.NODE_ENV !== "production") {
   globalForDatabase.jengaPgPool = client;
@@ -64,34 +51,7 @@ export async function closeDatabase(): Promise<void> {
 }
 
 export function ensureDatabase(): Promise<void> {
-  globalForDatabase.jengaSchemaReady ??= (async () => {
-    const migrationDirectory = join(process.cwd(), "src/db/migrations");
-    const migrations = (await readdir(migrationDirectory))
-      .filter((name) => /^\d+_.+\.sql$/.test(name))
-      .sort();
-
-    for (const migrationName of migrations) {
-      const migration = await readFile(
-        join(migrationDirectory, migrationName),
-        "utf8",
-      );
-      const connection = await client.connect();
-      try {
-        await connection.query("BEGIN");
-        await connection.query(migration);
-        await connection.query("COMMIT");
-      } catch (error) {
-        await connection.query("ROLLBACK");
-        throw new Error(
-          `Database migration ${migrationName} failed: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-      } finally {
-        connection.release();
-      }
-    }
-  })().catch((error) => {
+  globalForDatabase.jengaSchemaReady ??= verifyMigrations(client).catch((error) => {
     delete globalForDatabase.jengaSchemaReady;
     throw error;
   });

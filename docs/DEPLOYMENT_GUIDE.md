@@ -4,7 +4,7 @@
 
 Deployment is not configured. This guide describes prerequisites and safe deployment expectations; it is not evidence that a production deployment has occurred.
 
-The application connects to PostgreSQL through `DATABASE_URL` using the `node-postgres` driver. Provision a managed PostgreSQL instance with TLS and backups before launch; the connection string is read at server startup and is required. Project progress uploads are currently stored in the database, with a 10 MB limit for images/documents and 20 MB for videos. Before production, move file bytes to private object storage and add a dedicated migration command, email delivery service and download authorization.
+The application connects to PostgreSQL through `DATABASE_URL` using the `node-postgres` driver. Provision a managed PostgreSQL instance with TLS and backups before launch; the connection string is read at server startup and is required. Migrations are applied by the separate `npm run db:migrate` command, which records each file and its checksum in the `_migrations` ledger under an advisory lock. Run it as a deploy step before starting app instances; the app itself only verifies migration state at startup. Project progress uploads are currently stored in the database, with a 10 MB limit for images/documents and 20 MB for videos. Before production, move file bytes to private object storage and add email delivery and download authorization.
 
 ## Required configuration
 
