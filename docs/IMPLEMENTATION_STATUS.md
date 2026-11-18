@@ -13,7 +13,7 @@ Last updated: 2026-11-05
 | Stack scaffold and original shell | Complete (initial) | Responsive Next.js, TypeScript and Tailwind application shell with dashboard and project views |
 | Authentication | Complete (initial) | Better Auth email/password flow; integration test verifies signup's signed session cookie retrieves the session. Email verification and production mail delivery remain unconfigured |
 | Company membership | Complete (initial) | Company onboarding, owner membership, active-company selector and role checks |
-| Database/migrations | Complete (adapter + ledger) | Drizzle `node-postgres` adapter driven by `DATABASE_URL`; `npm run db:migrate` applies checksummed migrations under an advisory lock, and the app verifies migration state at startup |
+| Database/migrations | Complete (adapter + ledger) | Drizzle `node-postgres` adapter driven by `DATABASE_URL`; `npm run db:migrate` applies checksummed migrations under an advisory lock, and the app verifies migration state at startup; `npm run db:backup` and a non-destructive `npm run db:restore` drill are available |
 | Project CRUD | Complete (initial) | Tenant-scoped create/read/update/archive service and pages, with transactional audit events |
 | Customer records | Complete (initial) | Company-scoped customer register, create/edit/archive/restore, validation, role checks and transactional audit events; inactive records preserve project links |
 | Customer-project links | Complete (initial) | Project forms select active company customers; server-side validation prevents cross-company/inactive assignment, and project detail displays the linked customer |

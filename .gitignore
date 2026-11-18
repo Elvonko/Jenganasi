@@ -23,6 +23,9 @@
 # local embedded database
 /.data/
 
+# database backups
+/.backups/
+
 # misc
 .DS_Store
 *.pem

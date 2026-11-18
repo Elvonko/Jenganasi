@@ -31,6 +31,14 @@ Configure separate development, preview and production databases and provider cr
 - Documented incident response, access review, support procedure, privacy and retention policy.
 - Payment integration remains in sandbox until provider approval, reconciliation and finance controls are signed off.
 
+## Backup and restore
+
+`npm run db:backup [file]` writes a custom-format `pg_dump` archive (default: `.backups/jenganasi-<timestamp>.dump`). The `.backups/` directory is gitignored. The Postgres client tools are resolved from `PG_DUMP_PATH` / `PG_RESTORE_PATH`, `PG_BIN_DIR`, common installation paths, or `PATH`. Passwords are supplied through `PGPASSWORD` rather than the command line.
+
+`npm run db:drill` backs up to `.backups/latest.dump` and immediately runs the drill. `npm run db:restore -- <file>` performs a **non-destructive restore drill**: it creates a temporary database, restores the archive, verifies the `_migrations` ledger and table count, and drops the temporary database. Use this regularly to prove a backup is restorable. To restore over the configured database, use `npm run db:restore -- <file> --replace --confirm` — this is destructive and should follow a fresh backup.
+
+Automated scheduling, offsite storage and retention remain the deployment platform's responsibility.
+
 ## Local development
 
-Copy `.env.example` to `.env.local`, set `DATABASE_URL` to a local PostgreSQL connection string and `BETTER_AUTH_SECRET` to a random value, then run the documented development command. The schema is applied automatically on the first request in development; production should apply it in a dedicated migration step before deploying the application.
+Copy `.env.example` to `.env.local`, set `DATABASE_URL` to a local PostgreSQL connection string and `BETTER_AUTH_SECRET` to a random value. Run `npm run db:migrate` once before starting the app; the app only verifies migration state at startup.

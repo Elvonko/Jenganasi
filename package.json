@@ -9,6 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "db:migrate": "node --env-file-if-exists=.env.local --import=tsx scripts/migrate.ts",
+    "db:backup": "node --env-file-if-exists=.env.local --import=tsx scripts/backup.ts",
+    "db:restore": "node --env-file-if-exists=.env.local --import=tsx scripts/restore.ts",
+    "db:drill": "npm run db:backup -- .backups/latest.dump && npm run db:restore -- .backups/latest.dump",
     "test": "node --env-file-if-exists=.env.local --conditions=react-server --import=tsx --test src/db/migrate.test.ts src/lib/project-service.test.ts src/lib/procurement-service.test.ts"
   },
   "dependencies": {

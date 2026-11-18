@@ -43,6 +43,15 @@ Requirements: Node.js 20.9 or newer, npm and a PostgreSQL server.
 
 Migrations are **not** applied by the application at runtime. The app only verifies that every migration in `src/db/migrations/` is present and unchanged in the `_migrations` ledger, and fails fast with a clear error otherwise. Run `npm run db:migrate` as a separate deploy step before starting the app. Never edit a migration that has already been applied — add a new one instead. Use a dedicated database per environment; production should use a managed PostgreSQL service with backups and TLS.
 
+## Backup and restore
+
+```powershell
+npm run db:backup
+npm run db:restore -- .backups/<backup-file>.dump
+```
+
+`npm run db:drill` runs both steps in one command. `db:backup` writes a custom-format `pg_dump` archive under `.backups/` (gitignored). `db:restore` restores it into a temporary database, verifies the migration ledger and table count, then drops that database — it never touches your working database. To restore over the configured database, add `--replace --confirm` after first taking a fresh backup. See [deployment guide](./docs/DEPLOYMENT_GUIDE.md) for tool-path configuration and scheduling responsibilities.
+
 ## Validation
 
 ```powershell
