@@ -19,6 +19,9 @@ export default async function ClientPortalLayout({
           <span className="brand-name">Jenga<span>Nasi</span></span>
         </Link>
         <div className="client-portal-user">
+          <Link className="client-help-link" href="/help?audience=customer&returnTo=/client-portal">
+            Help &amp; guides
+          </Link>
           <span>{user.name}</span>
           <SignOutButton />
         </div>

@@ -14,6 +14,9 @@ export default async function ClientPortalPage() {
         <p className="eyebrow">YOUR CLIENT PORTAL</p>
         <h1>Project progress, in one place.</h1>
         <p>View the latest photos, videos and files your construction team has shared.</p>
+        <Link className="client-help-inline" href="/help?audience=customer&returnTo=/client-portal">
+          New here? Read the client guide →
+        </Link>
       </section>
       <section className="client-project-list" aria-labelledby="client-project-heading">
         <div className="panel-heading">

@@ -62,6 +62,10 @@ Annual Pro and Business plans are paid in KES through Safaricom Daraja STK Push 
 
 Payments are stored in `mpesa_payment`, and the company's active plan is activated only after the callback is verified against a Daraja status query and the amount matches the invoice. Auto-renew is stored as explicit consent on `subscription`; run `npm run billing:renew` from a daily scheduler to send STK pushes for subscriptions nearing expiry (configurable with `MPESA_RENEWAL_WINDOW_DAYS`). This is a consent-based renewal using STK Push rather than Safaricom's limited native recurring-payments API; the `MpesaClient` abstraction can be extended if that API becomes available.
 
+## In-app help
+
+Signed-in users can open `/help` for a role-aware help centre. It shows a contractor/staff guide by default for internal members and a customer/client guide for users whose only memberships are `client`; either audience can be selected manually with the switcher. Links appear in the workspace sidebar, the client portal header and the billing page. Help content lives in `src/lib/help-content.ts`.
+
 ## Validation
 
 ```powershell

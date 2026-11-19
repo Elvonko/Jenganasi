@@ -117,7 +117,9 @@ export default async function BillingPage() {
       </section>
 
       <p className="muted">
-        Need help with a payment? <Link href="/settings">Review company settings</Link>.
+        Need help with a payment? Read the{" "}
+        <Link href="/help?audience=contractor&returnTo=/billing">billing guide</Link>{" "}
+        or <Link href="/settings">review company settings</Link>.
       </p>
     </div>
   );

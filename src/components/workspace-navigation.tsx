@@ -6,6 +6,7 @@ import {
   ClipboardList,
   CreditCard,
   FolderKanban,
+  HelpCircle,
   LayoutDashboard,
   Settings2,
   Users,
@@ -58,6 +59,7 @@ export function WorkspaceNavigation({
     ...(canManageBilling
       ? [{ href: "/billing", label: "Billing", icon: CreditCard }]
       : []),
+    { href: "/help?audience=contractor", label: "Help & guides", icon: HelpCircle },
   ];
 
   return navigation.map((item) => {
