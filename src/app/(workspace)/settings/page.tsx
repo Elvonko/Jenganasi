@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   deleteCompanyTemplateAction,
   saveCompanySettings,
@@ -33,6 +34,20 @@ export default async function SettingsPage() {
           </p>
         </div>
       </section>
+      {(context.actor.role === "owner" || context.actor.role === "admin") && (
+        <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">SECURITY</p>
+              <h2>Two-factor authentication</h2>
+              <p className="muted">Protect your owner/admin account with an authenticator app.</p>
+            </div>
+            <Link className="button button-secondary" href="/settings/mfa">
+              Manage MFA
+            </Link>
+          </div>
+        </section>
+      )}
       <section className="panel form-panel">
         <div className="panel-heading">
           <div>

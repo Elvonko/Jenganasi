@@ -24,6 +24,7 @@ Last updated: 2026-11-05
 | Company settings and templates | Complete (initial) | Owner/admin-editable company profile, regional defaults, reusable company-scoped project task/milestone and estimate BOQ templates, transactional audit history, and creation-time snapshots |
 | Deployment / CI / health | Complete (local) | Standalone Docker image, compose stack with a separate migration step, GitHub Actions CI, and liveness/readiness endpoints; no production deployment or monitoring/alerting integration yet |
 | M-Pesa subscriptions | Complete (sandbox-ready, mocked verification) | STK Push checkout, verified/idempotent callbacks, KES plan pricing, payment history, consent-based auto-renew and a renewal scheduler; live Daraja credentials, public HTTPS callback and finance reconciliation remain |
+| Security, observability and storage hardening | Complete (initial) | TOTP MFA for owner/admin with backup codes, per-user abuse limits on company/invitation creation, redacted structured JSON logs with request IDs, error boundaries with reference IDs, Sentry-ready hook, and S3-compatible object storage with signed URLs for media |
 | In-app user documentation | Complete (initial) | `/help` help centre with contractor/staff and customer/client guides, role-aware default audience, switcher, task links, expandable articles and FAQs; linked from both shells and billing |
 | Remaining construction modules | Not implemented | Remaining work in roadmap phases 5 onward |
 

@@ -2,11 +2,13 @@ import "server-only";
 
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { twoFactor } from "better-auth/plugins/two-factor";
 import { db } from "@/db/client";
 import {
   accounts,
   rateLimits,
   sessions,
+  twoFactors,
   users,
   verifications,
 } from "@/db/schema";
@@ -43,6 +45,7 @@ export const auth = betterAuth({
       account: accounts,
       verification: verifications,
       rateLimit: rateLimits,
+      twoFactor: twoFactors,
     },
     transaction: true,
   }),
@@ -74,6 +77,7 @@ export const auth = betterAuth({
       });
     },
   },
+  plugins: [twoFactor({ issuer: "JengaNasi" })],
   session: {
     expiresIn: 30 * 24 * 60 * 60,
   },

@@ -25,6 +25,7 @@ import {
   users,
 } from "@/db/schema";
 import { hasPermission, memberRoles } from "@/lib/permissions";
+import { getObjectStorage } from "@/lib/object-storage";
 import type { ProjectActor } from "@/lib/project-service";
 
 export const MAX_PROJECT_MEDIA_BYTES = 20 * 1024 * 1024;
@@ -235,6 +236,18 @@ export async function addProjectMedia(
     throw new Error("The progress update details are invalid.");
   }
 
+  const storageKey = `${actor.companyId}/${projectId}/${randomUUID()}`;
+  const storage = await getObjectStorage();
+  await storage.put(storageKey, input.data, input.contentType);
+  const metadata = {
+    fileName: input.fileName,
+    contentType: input.contentType,
+    category: input.category,
+    fileSize: input.fileSize,
+    caption: input.caption,
+    isShared: input.isShared,
+  };
+
   return db.transaction(async (transaction) => {
     const [media] = await transaction
       .insert(projectMedia)
@@ -242,7 +255,8 @@ export async function addProjectMedia(
         id: randomUUID(),
         companyId: actor.companyId,
         projectId,
-        ...input,
+        ...metadata,
+        storageKey,
         uploadedBy: actor.userId,
       })
       .returning({
@@ -421,6 +435,7 @@ export async function getProjectMediaForUser(
   const [media] = await db
     .select({
       data: projectMedia.data,
+      storageKey: projectMedia.storageKey,
       contentType: projectMedia.contentType,
       fileName: projectMedia.fileName,
       category: projectMedia.category,
@@ -483,6 +498,25 @@ export async function getProjectMediaForUser(
     return null;
   }
   return media;
+}
+
+export async function resolveProjectMediaDownload(
+  media: NonNullable<Awaited<ReturnType<typeof getProjectMediaForUser>>>,
+): Promise<{ bytes?: Uint8Array; redirectUrl?: string }> {
+  if (
+    media.storageKey &&
+    !media.storageKey.startsWith("legacy:") &&
+    media.data === null
+  ) {
+    const storage = await getObjectStorage();
+    return {
+      redirectUrl: await storage.signedGetUrl(
+        media.storageKey,
+        media.contentType,
+      ),
+    };
+  }
+  return { bytes: media.data ?? new Uint8Array() };
 }
 
 export async function inviteClientToProject(

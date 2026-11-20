@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getCompanyContext, getSessionUser } from "@/lib/company-context";
+import { consumeAbuseAllowance } from "@/lib/abuse-limit";
 import {
   acceptClientInvitation,
   addProjectMedia,
@@ -67,6 +68,17 @@ export async function createClientProjectInvitation(
   }
 
   const { actor } = await getCompanyContext("projects:update");
+  const allowance = await consumeAbuseAllowance(
+    `invite:create:${actor.userId}`,
+    20,
+  );
+  if (!allowance.allowed) {
+    return {
+      error: `Too many invitations created recently. Try again in ${Math.ceil(
+        allowance.retryAfterSeconds / 60,
+      )} minute(s).`,
+    };
+  }
   try {
     const invitation = await inviteClientToProject(actor, projectId);
     const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";

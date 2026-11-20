@@ -1293,18 +1293,17 @@ test("company-scoped project operations enforce tenant and role boundaries", asy
     await getProjectMediaForUser(clientAId, portalProject.id, hiddenUpdate.id),
     null,
   );
-  assert.deepEqual(
-    Uint8Array.from(
-      (
-        await getProjectMediaForUser(
-          clientAId,
-          portalProject.id,
-          sharedUpdate.id,
-        )
-      )?.data ?? new Uint8Array(),
-    ),
-    sampleImage,
+  const sharedMedia = await getProjectMediaForUser(
+    clientAId,
+    portalProject.id,
+    sharedUpdate.id,
   );
+  assert.ok(sharedMedia);
+  assert.equal(sharedMedia.contentType, "image/png");
+  assert.ok(sharedMedia.storageKey);
+  const { readInMemoryObject } = await import("@/lib/object-storage-memory");
+  assert.deepEqual(readInMemoryObject(sharedMedia.storageKey!)?.data, sampleImage);
+  assert.equal(sharedMedia.data, null);
   assert.deepEqual(await listClientProjects(clientAId), [
     {
       id: portalProject.id,

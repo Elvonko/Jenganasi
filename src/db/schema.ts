@@ -29,6 +29,7 @@ export const users = pgTable(
     name: text("name").notNull(),
     email: text("email").notNull(),
     emailVerified: boolean("email_verified").notNull().default(false),
+    twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
     image: text("image"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -87,6 +88,20 @@ export const accounts = pgTable(
     ),
   ],
 );
+
+export const twoFactors = pgTable("two_factor", {
+  id: text("id").primaryKey(),
+  secret: text("secret").notNull(),
+  backupCodes: text("backup_codes").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  verified: boolean("verified").notNull().default(true),
+  failedVerificationCount: integer("failed_verification_count")
+    .notNull()
+    .default(0),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+});
 
 export const rateLimits = pgTable("rate_limit", {
   id: text("id").primaryKey(),
@@ -510,7 +525,8 @@ export const projectMedia = pgTable(
     fileSize: integer("file_size").notNull(),
     caption: text("caption").notNull().default(""),
     isShared: boolean("is_shared").notNull().default(false),
-    data: binaryData("data").notNull(),
+    data: binaryData("data"),
+    storageKey: text("storage_key"),
     uploadedBy: text("uploaded_by")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),

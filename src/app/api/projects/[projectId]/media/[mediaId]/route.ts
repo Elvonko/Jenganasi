@@ -1,5 +1,8 @@
 import { getSessionUser } from "@/lib/company-context";
-import { getProjectMediaForUser } from "@/lib/project-media-service";
+import {
+  getProjectMediaForUser,
+  resolveProjectMediaDownload,
+} from "@/lib/project-media-service";
 
 export async function GET(
   _request: Request,
@@ -19,6 +22,12 @@ export async function GET(
   const media = await getProjectMediaForUser(user.id, projectId, mediaId);
   if (!media) return new Response("Not found", { status: 404 });
 
+  const resolved = await resolveProjectMediaDownload(media);
+  if (resolved.redirectUrl) {
+    return Response.redirect(resolved.redirectUrl, 302);
+  }
+
+  const bytes = resolved.bytes ?? new Uint8Array();
   const disposition =
     media.category === "image" || media.category === "video"
       ? "inline"
@@ -27,13 +36,13 @@ export async function GET(
     /['()*]/g,
     (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`,
   );
-  const body = new ArrayBuffer(media.data.byteLength);
-  new Uint8Array(body).set(media.data);
+  const body = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(body).set(bytes);
   return new Response(body, {
     headers: {
       "Cache-Control": "private, no-store",
       "Content-Disposition": `${disposition}; filename*=UTF-8''${encodedName}`,
-      "Content-Length": String(media.data.byteLength),
+      "Content-Length": String(bytes.byteLength),
       "Content-Type": media.contentType,
       "X-Content-Type-Options": "nosniff",
     },

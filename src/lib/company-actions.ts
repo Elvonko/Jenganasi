@@ -9,6 +9,7 @@ import { z } from "zod";
 import { db, ensureDatabase } from "@/db/client";
 import { auditEvents, companies, memberships } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { consumeAbuseAllowance } from "@/lib/abuse-limit";
 
 export type CompanyFormState = {
   error?: string;
@@ -48,6 +49,18 @@ export async function createCompany(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     redirect("/sign-in");
+  }
+
+  const allowance = await consumeAbuseAllowance(
+    `company:create:${session.user.id}`,
+    5,
+  );
+  if (!allowance.allowed) {
+    return {
+      error: `Too many workspaces created recently. Try again in ${Math.ceil(
+        allowance.retryAfterSeconds / 60,
+      )} minute(s).`,
+    };
   }
 
   const [existingMembership] = await db
