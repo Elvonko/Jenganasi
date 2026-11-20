@@ -4641,3 +4641,54 @@ p {
     align-items: flex-start;
   }
 }
+
+/* JengaNasi brand image logo */
+.brand-logo {
+  display: block;
+  height: auto;
+  width: 132px;
+  object-fit: contain;
+}
+
+.brand-lockup .brand-logo {
+  width: 128px;
+  max-height: 40px;
+}
+
+/* Dark sidebar needs a light chip behind the dark wordmark */
+.sidebar > .brand-lockup .brand-logo {
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.home-brand-logo {
+  width: 150px;
+  max-height: 42px;
+}
+
+.auth-brand-header .brand-logo {
+  width: 150px;
+  max-height: 42px;
+}
+
+.client-portal-header .brand-logo {
+  width: 150px;
+  max-height: 42px;
+}
+
+.help-header .brand-logo {
+  width: 150px;
+  max-height: 42px;
+}
+
+@media (max-width: 640px) {
+  .brand-logo,
+  .brand-lockup .brand-logo,
+  .home-brand-logo,
+  .auth-brand-header .brand-logo,
+  .client-portal-header .brand-logo,
+  .help-header .brand-logo {
+    width: 116px;
+  }
+}

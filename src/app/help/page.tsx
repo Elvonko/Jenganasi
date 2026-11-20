@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import "../help.css";
 import { HelpAudienceSwitcher } from "@/components/help-audience-switcher";
 import { getDefaultHelpAudience } from "@/lib/help-context";
@@ -28,8 +29,7 @@ export default async function HelpPage({
       <header className="help-header">
         <div className="help-header-inner">
           <Link className="home-brand" href={returnTo ?? "/help"} aria-label="Back to JengaNasi">
-            <span className="home-brand-mark" aria-hidden="true">J</span>
-            <span className="home-brand-name">Jenga<span>Nasi</span></span>
+            <BrandLogo className="home-brand-logo" priority />
           </Link>
           <Link className="home-sign-in" href={returnTo ?? "/overview"}>
             Back to workspace

@@ -10,6 +10,7 @@ import {
   MoveUpRight,
 } from "lucide-react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 
 const projectPhases = [
   { name: "Site preparation", progress: 100, tone: "complete" },
@@ -23,8 +24,7 @@ export default function HomePage() {
       <header className="home-header">
         <div className="home-header-inner">
           <Link className="home-brand" href="/" aria-label="JengaNasi home">
-            <span className="home-brand-mark" aria-hidden="true">J</span>
-            <span className="home-brand-name">Jenga<span>Nasi</span></span>
+            <BrandLogo className="home-brand-logo" priority />
           </Link>
 
           <nav className="home-nav" aria-label="Main navigation">
@@ -241,8 +241,7 @@ export default function HomePage() {
       <footer className="home-footer">
         <div className="home-footer-inner">
           <Link className="home-brand" href="/" aria-label="JengaNasi home">
-            <span className="home-brand-mark" aria-hidden="true">J</span>
-            <span className="home-brand-name">Jenga<span>Nasi</span></span>
+            <BrandLogo className="home-brand-logo" priority />
           </Link>
           <p>Construction, in good company.</p>
           <span className="home-footer-copyright">© {new Date().getFullYear()} JengaNasi</span>

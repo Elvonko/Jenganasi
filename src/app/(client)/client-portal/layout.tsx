@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/brand-logo";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getSessionUser } from "@/lib/company-context";
 
@@ -15,8 +16,7 @@ export default async function ClientPortalLayout({
     <div className="client-portal-shell">
       <header className="client-portal-header">
         <Link className="brand-lockup" href="/client-portal">
-          <span className="brand-mark" aria-hidden="true">J</span>
-          <span className="brand-name">Jenga<span>Nasi</span></span>
+          <BrandLogo />
         </Link>
         <div className="client-portal-user">
           <Link className="client-help-link" href="/help?audience=customer&returnTo=/client-portal">

@@ -5,6 +5,7 @@ import {
 import Link from "next/link";
 import { getCompanyContext } from "@/lib/company-context";
 import { hasPermission } from "@/lib/permissions";
+import { BrandLogo } from "@/components/brand-logo";
 import { CompanySwitcher } from "@/components/company-switcher";
 import { SignOutButton } from "@/components/sign-out-button";
 import { WorkspaceNavigation } from "@/components/workspace-navigation";
@@ -18,10 +19,7 @@ export async function WorkspaceShell({
     <div className="workspace">
       <aside className="sidebar">
         <Link className="brand-lockup" href="/overview" aria-label="JengaNasi workspace overview">
-          <span className="brand-mark" aria-hidden="true">
-            J
-          </span>
-          <span className="brand-name">Jenga<span>Nasi</span></span>
+          <BrandLogo />
         </Link>
         <div className="sidebar-company">
           <span className="sidebar-label">WORKSPACE</span>
